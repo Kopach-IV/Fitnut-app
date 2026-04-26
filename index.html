@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitNut Mini App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: #2d2d2d;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        h1 { color: #bb86fc; }
+        .stat { font-size: 24px; font-weight: bold; color: #03dac6; }
+        button {
+            background-color: #bb86fc;
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>FitNut Panel</h1>
+    
+    <div class="card">
+        <p>Твоя активность сегодня:</p>
+        <div class="stat">4,500 шагов</div>
+    </div>
+
+    <div class="card">
+        <p>Вода (литры):</p>
+        <div class="stat">1.2 / 2.0</div>
+        <br>
+        <button onclick="alert('Вода добавлена!')">+ Добавить стакан</button>
+    </div>
+
+    <p>Это твоё личное Mini App!</p>
+</body>
+</html>
