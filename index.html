@@ -3,128 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitNut Questionnaire</title>
+    <title>FitNut</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1e1e1e;
-            --primary: #bb86fc;
-            --secondary: #03dac6;
-            --text: #ffffff;
-        }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
-            margin-bottom: 30px;
-        }
-        .progress-fill {
-            width: 33%;
-            height: 100%;
-            background: var(--primary);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        .step { display: none; width: 100%; animation: fadeIn 0.5s ease; }
+        :root { --bg: #0f0f0f; --card: #1e1e1e; --primary: #bb86fc; --text: #ffffff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; text-align: center; }
+        .step { display: none; }
         .active { display: block; }
-        
-        h1 { font-size: 24px; margin-bottom: 10px; color: var(--primary); }
-        p { color: #aaa; margin-bottom: 25px; }
-
-        .option-card {
-            background: var(--card-bg);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .option-card:active { border-color: var(--primary); background: #252525; }
-        
-        input {
-            width: 100%;
-            padding: 15px;
-            background: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-
-        button.main-btn {
-            background: var(--primary);
-            color: black;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-card { background: var(--card); padding: 20px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; }
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #252525; border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; }
+        .main-btn { background: var(--primary); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-
-    <div class="step active" id="step1">
-        <h1>Какая твоя цель?</h1>
-        <p>Это поможет AI-тренеру составить план</p>
-        <div class="option-card" onclick="nextStep('Похудение', 66)">🔥 Похудение</div>
-        <div class="option-card" onclick="nextStep('Рельеф', 66)">💎 Рельеф и тонус</div>
-        <div class="option-card" onclick="nextStep('Масса', 66)">💪 Набор массы</div>
+    <div id="step1" class="step active">
+        <h2>Выберите цель:</h2>
+        <div class="option-card" onclick="nextStep('Похудение')">🔥 Похудение</div>
+        <div class="option-card" onclick="nextStep('Рельеф')">💎 Рельеф</div>
+        <div class="option-card" onclick="nextStep('Масса')">💪 Набор массы</div>
     </div>
 
-    <div class="step" id="step2">
-        <h1>Твои данные</h1>
-        <p>Для точного расчета калорий</p>
-        <input type="number" id="weight" placeholder="Вес (кг)">
-        <input type="number" id="height" placeholder="Рост (см)">
-        <button class="main-btn" onclick="finish()">Завершить анализ ✨</button>
+    <div id="step2" class="step">
+        <h2>Ваши параметры:</h2>
+        <input type="number" id="weight" placeholder="Вес (кг)" inputmode="decimal">
+        <input type="number" id="height" placeholder="Рост (см)" inputmode="decimal">
+        <button class="main-btn" onclick="sendDataToBot()">ЗАВЕРШИТЬ АНАЛИЗ ✨</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        let userData = { goal: '', weight: '', height: '' };
+        let selectedGoal = '';
 
-        function nextStep(goal, progress) {
-            userData.goal = goal;
+        function nextStep(goal) {
+            selectedGoal = goal;
             document.getElementById('step1').classList.remove('active');
             document.getElementById('step2').classList.add('active');
-            document.getElementById('progress').style.width = progress + '%';
         }
 
-        function finish() {
-            userData.weight = document.getElementById('weight').value;
-            userData.height = document.getElementById('height').value;
+        function sendDataToBot() {
+            const w = document.getElementById('weight').value;
+            const h = document.getElementById('height').value;
 
-            if(!userData.weight || !userData.height) {
-                alert("Пожалуйста, заполни все поля");
-                return;
+            if (w && h) {
+                const result = {
+                    goal: selectedGoal,
+                    weight: w,
+                    height: h
+                };
+                // Отправляем данные боту (ВАЖНО: это закрывает Mini App автоматически)
+                tg.sendData(JSON.stringify(result));
+            } else {
+                tg.showAlert("Пожалуйста, заполните вес и рост!");
             }
-
-            // Отправляем всё одним объектом в бот
-            tg.sendData(JSON.stringify(userData));
         }
     </script>
 </body>
