@@ -3,60 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitNut</title>
+    <title>FitNut Questionnaire</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f0f0f; --card: #1e1e1e; --primary: #bb86fc; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; text-align: center; }
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --text: #ffffff;
+        }
+        body {
+            font-family: sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
         .step { display: none; }
         .active { display: block; }
-        .option-card { background: var(--card); padding: 20px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; }
-        input { width: 100%; padding: 15px; margin: 10px 0; background: #252525; border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; }
-        .main-btn { background: var(--primary); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+        .option-card {
+            background: var(--card-bg);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border: 1px solid #333;
+            cursor: pointer;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #252525;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .main-btn {
+            background: var(--primary);
+            color: black;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .main-btn:active { opacity: 0.7; }
     </style>
 </head>
 <body>
 
     <div id="step1" class="step active">
-        <h2>Выберите цель:</h2>
-        <div class="option-card" onclick="nextStep('Похудение')">🔥 Похудение</div>
-        <div class="option-card" onclick="nextStep('Рельеф')">💎 Рельеф</div>
-        <div class="option-card" onclick="nextStep('Масса')">💪 Набор массы</div>
+        <h1>Выберите цель:</h1>
+        <div class="option-card" onclick="setGoal('Похудение')">🔥 Похудение</div>
+        <div class="option-card" onclick="setGoal('Рельеф')">💎 Рельеф</div>
+        <div class="option-card" onclick="setGoal('Масса')">💪 Набор массы</div>
     </div>
 
     <div id="step2" class="step">
-        <h2>Ваши параметры:</h2>
-        <input type="number" id="weight" placeholder="Вес (кг)" inputmode="decimal">
-        <input type="number" id="height" placeholder="Рост (см)" inputmode="decimal">
-        <button class="main-btn" onclick="sendDataToBot()">ЗАВЕРШИТЬ АНАЛИЗ ✨</button>
+        <h1>Ваши данные:</h1>
+        <input type="number" id="weight" placeholder="Ваш вес (кг)" inputmode="decimal">
+        <input type="number" id="height" placeholder="Ваш рост (см)" inputmode="decimal">
+        <button id="finalBtn" class="main-btn" onclick="sendToBot()">ЗАВЕРШИТЬ АНАЛИЗ ✨</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        let selectedGoal = '';
 
-        function nextStep(goal) {
-            selectedGoal = goal;
+        let goal = "";
+
+        function setGoal(selectedGoal) {
+            goal = selectedGoal;
             document.getElementById('step1').classList.remove('active');
             document.getElementById('step2').classList.add('active');
         }
 
-        function sendDataToBot() {
-            const w = document.getElementById('weight').value;
-            const h = document.getElementById('height').value;
+        function sendToBot() {
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const btn = document.getElementById('finalBtn');
 
-            if (w && h) {
-                const result = {
-                    goal: selectedGoal,
-                    weight: w,
-                    height: h
+            if (weight && height) {
+                // Визуальный отклик
+                btn.innerText = "ОТПРАВКА...";
+                btn.style.backgroundColor = "#03dac6";
+
+                const data = {
+                    goal: goal,
+                    weight: weight,
+                    height: height
                 };
-                // Отправляем данные боту (ВАЖНО: это закрывает Mini App автоматически)
-                tg.sendData(JSON.stringify(result));
+
+                // Команда на закрытие и отправку
+                tg.sendData(JSON.stringify(data));
             } else {
-                tg.showAlert("Пожалуйста, заполните вес и рост!");
+                tg.showAlert("Пожалуйста, заполните все поля!");
             }
         }
     </script>
