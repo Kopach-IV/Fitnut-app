@@ -3,61 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitNut App</title>
+    <title>FitNut Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --card: #1e1e1e; --primary: #bb86fc; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; text-align: center; }
-        .step { display: none; }
-        .active { display: block; }
-        .option-card { background: var(--card); padding: 20px; margin: 15px 0; border-radius: 12px; border: 1px solid #333; cursor: pointer; }
-        input { width: 100%; padding: 15px; background: #252525; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
-        .main-btn { background: var(--primary); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; }
+        :root {
+            --bg: #0b0b0b;
+            --card-bg: #161616;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --text-main: #ffffff;
+            --text-gray: #9e9e9e;
+            --accent: #cf6679;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Контейнер страниц */
+        #content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
+        .page { display: none; animation: slideIn 0.3s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Карточки и элементы */
+        .card { background: var(--card-bg); border-radius: 18px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; }
+        .ai-status { color: var(--secondary); font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        
+        h1 { font-size: 24px; margin: 0 0 15px 0; }
+        p { color: var(--text-gray); line-height: 1.5; }
+
+        /* Сетка видео/еды */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-item { background: #222; height: 120px; border-radius: 12px; position: relative; overflow: hidden; }
+        .grid-item span { position: absolute; bottom: 10px; left: 10px; font-size: 12px; font-weight: bold; }
+
+        /* Чат с AI */
+        .chat-container { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
+        .msg { padding: 10px 14px; border-radius: 15px; max-width: 80%; font-size: 14px; }
+        .msg.ai { background: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg.user { background: var(--primary); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        /* Нижняя навигация */
+        .tab-bar {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: rgba(22, 22, 22, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #333; z-index: 1000;
+        }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--text-gray); font-size: 10px; cursor: pointer; transition: 0.2s; }
+        .tab-item i { font-size: 20px; margin-bottom: 5px; }
+        .tab-item.active { color: var(--primary); }
+
+        /* Поля ввода */
+        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #252525; border: 1px solid #333; color: white; border-radius: 12px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="step1" class="step active">
-        <h1>Выберите цель:</h1>
-        <div class="option-card" onclick="setGoal('Похудение')">🔥 Похудение</div>
-        <div class="option-card" onclick="setGoal('Рельеф')">💎 Рельеф</div>
-        <div class="option-card" onclick="setGoal('Масса')">💪 Набор массы</div>
+    <div id="content">
+        <div id="page-home" class="page active">
+            <div id="survey-section">
+                <h1>Настройка плана ✨</h1>
+                <p>Привет! Давай познакомимся. Эти данные увидит только твой AI-тренер.</p>
+                <input type="number" id="inp-weight" placeholder="Твой вес (кг)">
+                <input type="number" id="inp-height" placeholder="Твой рост (см)">
+                <select id="inp-goal">
+                    <option value="lose">Похудение</option>
+                    <option value="gain">Набор массы</option>
+                    <option value="tone">Рельеф</option>
+                </select>
+                <button class="btn-main" onclick="finishSurvey()">Получить доступ</button>
+            </div>
+
+            <div id="dashboard-section" style="display:none;">
+                <div class="ai-status"><i class="fas fa-robot"></i> AI-ТРЕНЕР ОНЛАЙН</div>
+                <h1>Твой прогресс</h1>
+                <div class="card">
+                    <p>Сегодня тебе нужно потренировать <b>Спину и Бицепс</b>. План питания уже составлен.</p>
+                </div>
+                <h3>Твой AI-ассистент:</h3>
+                <div class="card chat-container" id="ai-chat">
+                    <div class="msg ai">Привет! Я проанализировал твои данные. Начнем тренировку?</div>
+                </div>
+                <input type="text" placeholder="Задать вопрос тренеру..." onkeydown="if(event.key==='Enter') sendMessage(this)">
+            </div>
+        </div>
+
+        <div id="page-gym" class="page">
+            <h1>Тренировки</h1>
+            <div class="grid">
+                <div class="grid-item"><div style="background:linear-gradient(45deg, #333, #555); height:100%;"></div><span>Разминка</span></div>
+                <div class="grid-item"><div style="background:linear-gradient(45deg, #222, #444); height:100%;"></div><span>Силовая #1</span></div>
+                <div class="grid-item"><div style="background:linear-gradient(45deg, #111, #333); height:100%;"></div><span>Растяжка</span></div>
+                <div class="grid-item"><div style="background:linear-gradient(45deg, #444, #666); height:100%;"></div><span>Пресс</span></div>
+            </div>
+        </div>
+
+        <div id="page-food" class="page">
+            <h1>План питания</h1>
+            <div class="card">
+                <h3>Завтрак</h3>
+                <p>Овсяная каша с орехами и ягодами. 450 ккал.</p>
+            </div>
+            <div class="card">
+                <h3>Обед</h3>
+                <p>Куриное филе на гриле + Бурый рис. 600 ккал.</p>
+            </div>
+        </div>
+
+        <div id="page-profile" class="page">
+            <h1>Профиль</h1>
+            <div class="card">
+                <p id="profile-info">Данные еще не заполнены</p>
+                <button class="btn-main" style="background:var(--accent); color:white;" onclick="resetData()">Сбросить данные</button>
+            </div>
+        </div>
     </div>
 
-    <div id="step2" class="step">
-        <h1>Ваши параметры:</h1>
-        <input type="number" id="weight" placeholder="Вес (кг)" inputmode="decimal">
-        <input type="number" id="height" placeholder="Рост (см)" inputmode="decimal">
-        <button id="finalBtn" class="main-btn" onclick="sendToBot()">ЗАВЕРШИТЬ АНАЛИЗ ✨</button>
-    </div>
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="switchPage('page-home', this)"><i class="fas fa-home"></i><span>Главная</span></div>
+        <div class="tab-item" onclick="switchPage('page-gym', this)"><i class="fas fa-dumbbell"></i><span>Зал</span></div>
+        <div class="tab-item" onclick="switchPage('page-food', this)"><i class="fas fa-utensils"></i><span>Еда</span></div>
+        <div class="tab-item" onclick="switchPage('page-profile', this)"><i class="fas fa-user-circle"></i><span>Я</span></div>
+    </nav>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = '#0b0b0b';
 
-        let goal = "";
-
-        function setGoal(selectedGoal) {
-            goal = selectedGoal;
-            document.getElementById('step1').classList.remove('active');
-            document.getElementById('step2').classList.add('active');
+        function switchPage(pageId, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            el.classList.add('active');
         }
 
-        function sendToBot() {
-            const w = document.getElementById('weight').value;
-            const h = document.getElementById('height').value;
+        function finishSurvey() {
+            const w = document.getElementById('inp-weight').value;
+            const h = document.getElementById('inp-height').value;
+            const g = document.getElementById('inp-goal').value;
 
             if (w && h) {
-                const data = { goal: goal, weight: w, height: h };
+                document.getElementById('survey-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+                document.getElementById('profile-info').innerText = `Вес: ${w} кг | Рост: ${h} см | Цель: ${g}`;
                 
-                // Отправляем данные (работает только для KeyboardButton)
-                tg.sendData(JSON.stringify(data));
-                
-                // Принудительно закрываем окно
-                tg.close();
+                // В будущем здесь будет FETCH запрос на твой сервер
+                tg.HapticFeedback.notificationOccurred('success');
             } else {
-                tg.showAlert("Заполните все поля!");
+                tg.showAlert("Пожалуйста, заполни поля!");
             }
+        }
+
+        function sendMessage(input) {
+            if(!input.value) return;
+            const chat = document.getElementById('ai-chat');
+            chat.innerHTML += `<div class="msg user">${input.value}</div>`;
+            input.value = "";
+            chat.scrollTop = chat.scrollHeight;
+            
+            // Заглушка ответа AI
+            setTimeout(() => {
+                chat.innerHTML += `<div class="msg ai">Отличный вопрос! Как специалист с медицинским образованием, я рекомендую...</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 1000);
+        }
+
+        function resetData() {
+            location.reload();
         }
     </script>
 </body>
