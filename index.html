@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FITNUT APP</title>
+    <title>FITNUT BY NATA</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Полный сброс и фиксация черного цвета */
+        /* Базовые настройки для эффекта "Монолит" */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         html, body {
@@ -34,16 +34,16 @@
             z-index: 1000;
         }
 
-        h1 {
-            color: #ff2d55; /* Та самая фуксия */
-            font-size: 20px;
+        .header-title {
+            color: #ff2d55; /* Фуксия */
+            font-size: 18px;
             text-transform: uppercase;
             font-weight: 900;
             margin: 0;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
-        /* Контейнер для страниц с отступом под шапку и таб-бар */
+        /* Контейнер страниц */
         .page-container {
             margin-top: 60px;
             height: calc(100vh - 135px);
@@ -54,40 +54,62 @@
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Карточки и кнопки */
+        /* Брендированный заголовок внутри страницы */
+        .brand-title {
+            color: #ff2d55;
+            font-weight: 800;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .brand-subtitle {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 25px;
+        }
+
+        /* Карточки */
         .card {
             background: #1c1c1e;
-            border-radius: 15px;
-            padding: 15px;
+            border-radius: 20px;
+            padding: 20px;
             margin-bottom: 15px;
             border: 1px solid #2c2c2e;
         }
 
+        /* Кнопка анкеты */
         .btn-survey {
-            background: #ff2d55;
+            background: linear-gradient(45deg, #ff2d55, #ff5e7d);
             color: white;
             border: none;
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 15px;
+            padding: 18px;
             width: 100%;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 13px;
+            margin-bottom: 25px;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 45, 85, 0.3);
         }
 
-        /* Чат */
-        .chat-box { height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-        .msg { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 14px; line-height: 1.4; }
-        .bot { background: #2c2c2e; align-self: flex-start; border-left: 3px solid #ff2d55; }
-        .user { background: #ff2d55; align-self: flex-end; }
+        /* Стили чата */
+        .chat-box { height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 14px; line-height: 1.4; }
+        .bot { background: #2c2c2e; align-self: flex-start; border-left: 4px solid #ff2d55; }
+        .user { background: #ff2d55; align-self: flex-end; font-weight: 500; }
         
-        .chat-input { display: flex; gap: 8px; }
-        .chat-input input { flex: 1; background: #000; border: 1px solid #333; border-radius: 10px; padding: 10px; color: white; outline: none; }
+        .chat-input { display: flex; gap: 10px; background: #000; border-radius: 12px; padding: 5px; border: 1px solid #333; }
+        .chat-input input { flex: 1; background: transparent; border: none; padding: 10px; color: white; outline: none; font-size: 15px; }
+        .send-btn { color: #ff2d55; background: none; border: none; font-size: 22px; cursor: pointer; padding-right: 10px; }
 
-        /* Сетка контента */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .grid-item { background: #1c1c1e; border-radius: 10px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #2c2c2e; }
+        /* Сетки контента */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-item { background: #1c1c1e; border-radius: 15px; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #2c2c2e; gap: 8px; }
+        .grid-icon { font-size: 30px; }
 
         /* Нижний Таб-бар */
         .tab-bar {
@@ -95,8 +117,8 @@
             bottom: 0;
             width: 100%;
             height: 75px;
-            background: #0c0c0e;
-            border-top: 1px solid #333;
+            background: #000000;
+            border-top: 1px solid #1c1c1e;
             display: flex;
             justify-content: space-around;
             align-items: center;
@@ -108,69 +130,83 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #888;
+            color: #555;
             font-size: 10px;
             flex: 1;
+            transition: 0.3s;
         }
 
         .tab-item.active { color: #ff2d55; }
-        .tab-icon { font-size: 20px; margin-bottom: 4px; }
+        .tab-icon { font-size: 22px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <h1 id="header-title">FITNUT MAIN</h1>
+        <div class="header-title" id="header-title">RECEPTION</div>
     </div>
 
     <div class="page-container">
+        
         <div id="home" class="page active">
-            <button class="btn-survey">ПРОЙТИ АНКЕТИРОВАНИЕ 📋</button>
+            <div class="brand-title">Fitness&Nutrition</div>
+            <div class="brand-subtitle">by Nata</div>
+            
+            <button class="btn-survey">Пройти анкетирование 📋</button>
+            
             <div class="card">
+                <div style="color: #ff2d55; font-size: 14px; font-weight: 700; margin-bottom: 15px;">AI-КОНСУЛЬТАНТ</div>
                 <div id="chat-messages" class="chat-box">
-                    <div class="msg bot">Привет! Я Ната-AI. Пройди анкету или спроси меня о чем угодно! ✨</div>
+                    <div class="msg bot">Привет! Я твой AI-проводник. С чего начнем твою трансформацию? ✨</div>
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="user-input" placeholder="Вопрос...">
-                    <button style="background:none; border:none; color:#ff2d55; font-size:20px;" onclick="sendMessage()">➔</button>
+                    <input type="text" id="user-input" placeholder="Спроси меня о чем угодно...">
+                    <button class="send-btn" onclick="sendMessage()">➔</button>
                 </div>
             </div>
         </div>
 
         <div id="workouts" class="page">
             <div class="grid">
-                <div class="grid-item">🔥</div>
-                <div class="grid-item">🍑</div>
+                <div class="grid-item"><span class="grid-icon">🔥</span><span>Жиросжигание</span></div>
+                <div class="grid-item"><span class="grid-icon">🍑</span><span>Ягодицы</span></div>
+                <div class="grid-item"><span class="grid-icon">💪</span><span>Full Body</span></div>
+                <div class="grid-item"><span class="grid-icon">🧘‍♀️</span><span>Растяжка</span></div>
             </div>
         </div>
 
         <div id="nutrition" class="page">
             <div class="grid">
-                <div class="grid-item">🥗</div>
-                <div class="grid-item">🥞</div>
+                <div class="grid-item"><span class="grid-icon">🥗</span><span>Рецепты</span></div>
+                <div class="grid-item"><span class="grid-icon">🥞</span><span>Завтраки</span></div>
+                <div class="grid-item"><span class="grid-icon">🥩</span><span>Обеды</span></div>
+                <div class="grid-item"><span class="grid-icon">🍵</span><span>Детокс</span></div>
             </div>
         </div>
 
         <div id="profile" class="page">
             <div class="card">
-                <b id="user-name">Клиент</b>
-                <div style="display:flex; justify-content:space-between; margin-top:15px;">
-                    <div><span style="color:#ff2d55; font-weight:bold;">65.2</span><br><small>Вес</small></div>
-                    <div><span style="color:#ff2d55; font-weight:bold;">14</span><br><small>Трен</small></div>
-                    <div><span style="color:#ff2d55; font-weight:bold;">-2.1</span><br><small>Кг</small></div>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #ff2d55; display: flex; align-items: center; justify-content: center; font-size: 20px;">👤</div>
+                    <b id="user-name" style="font-size: 18px;">Клиент</b>
+                </div>
+                <div style="display:flex; justify-content:space-between; text-align: center;">
+                    <div><span style="color:#ff2d55; font-size: 20px; font-weight:bold;">65.2</span><br><small style="opacity:0.5;">Вес</small></div>
+                    <div><span style="color:#ff2d55; font-size: 20px; font-weight:bold;">14</span><br><small style="opacity:0.5;">Трен</small></div>
+                    <div><span style="color:#ff2d55; font-size: 20px; font-weight:bold;">-2.1</span><br><small style="opacity:0.5;">Кг</small></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="tab-bar">
-        <div class="tab-item active" onclick="showPage('home', 'FITNUT MAIN', this)">
+        <div class="tab-item active" onclick="showPage('home', 'RECEPTION', this)">
             <span class="tab-icon">🏠</span><span>Главная</span>
         </div>
-        <div class="tab-item" onclick="showPage('workouts', 'ТРЕНИРОВКИ', this)">
+        <div class="tab-item" onclick="showPage('workouts', 'КЛУБ', this)">
             <span class="tab-icon">🏋️</span><span>Клуб</span>
         </div>
-        <div class="tab-item" onclick="showPage('nutrition', 'ПИТАНИЕ', this)">
+        <div class="tab-item" onclick="showPage('nutrition', 'МЕНЮ', this)">
             <span class="tab-icon">🥗</span><span>Меню</span>
         </div>
         <div class="tab-item" onclick="showPage('profile', 'ПРОФИЛЬ', this)">
@@ -181,7 +217,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         
-        function init() {
+        function initApp() {
             tg.ready();
             tg.expand();
             tg.setHeaderColor('#000000');
@@ -195,25 +231,40 @@
         function showPage(pageId, title, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            
             document.getElementById(pageId).classList.add('active');
             el.classList.add('active');
+            
             document.getElementById('header-title').textContent = title;
             tg.HapticFeedback.impactOccurred('light');
         }
 
         function sendMessage() {
             const input = document.getElementById('user-input');
+            const container = document.getElementById('chat-messages');
             const text = input.value.trim();
+            
             if (!text) return;
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg user';
-            msgDiv.textContent = text;
-            document.getElementById('chat-messages').appendChild(msgDiv);
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user';
+            userDiv.textContent = text;
+            container.appendChild(userDiv);
+            
             input.value = '';
-            document.getElementById('chat-messages').scrollTop = 9999;
+            container.scrollTop = container.scrollHeight;
+
+            // Ответ-заглушка
+            setTimeout(() => {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot';
+                botDiv.textContent = "Принято! Я проанализирую твой запрос... ✨";
+                container.appendChild(botDiv);
+                container.scrollTop = container.scrollHeight;
+            }, 600);
         }
 
-        init();
+        initApp();
     </script>
 </body>
 </html>
