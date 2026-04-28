@@ -6,153 +6,178 @@
     <title>Fitnut App by Nata</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* Палитра: Глубокий черный и Розовый неон */
         :root {
-            --tg-theme-bg-color: #1c1c1e;
-            --tg-theme-text-color: #ffffff;
-            --tg-theme-button-color: #007AFF;
-            --tg-theme-button-text-color: #ffffff;
-            --tg-theme-secondary-bg-color: #2c2c2e;
+            --bg-color: #0c0c0e;
+            --secondary-bg: #1c1c1e;
+            --accent-pink: #ff2d55; /* Сочный розовый */
+            --accent-glow: rgba(255, 45, 85, 0.4);
+            --text-main: #ffffff;
+            --text-dim: #ebebf5;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
         }
 
         .container {
-            padding: 20px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 50px 20px;
             text-align: center;
+            flex: 1;
         }
 
-        h1 { font-size: 24px; margin-bottom: 10px; color: var(--tg-theme-button-color); }
-        p { font-size: 16px; opacity: 0.8; line-height: 1.5; }
+        h1 { 
+            font-size: 32px; 
+            margin-bottom: 15px; 
+            color: var(--accent-pink); 
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+        
+        p { font-size: 17px; opacity: 0.9; line-height: 1.5; color: var(--text-dim); }
 
-        /* Стили AI-Чата */
+        /* AI-Чат Кнопка (Пузырь) */
         #chat-bubble {
             position: fixed;
-            bottom: 25px;
+            bottom: 30px;
             right: 25px;
-            width: 60px;
-            height: 60px;
-            background: var(--tg-theme-button-color);
+            width: 65px;
+            height: 65px;
+            background: var(--accent-pink);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            font-size: 30px;
+            box-shadow: 0 0 20px var(--accent-glow);
             cursor: pointer;
-            z-index: 9999;
-            transition: transform 0.2s ease;
+            z-index: 999;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #chat-bubble:active { transform: scale(0.9); }
+        #chat-bubble:active { transform: scale(0.85); }
 
+        /* Окно чата */
         #chat-window {
             position: fixed;
-            bottom: 95px;
-            right: 20px;
-            left: 20px;
-            height: 70vh;
-            background: var(--tg-theme-secondary-bg-color);
-            border-radius: 20px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
             display: none;
             flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 10000;
-            border: 1px solid #333;
-            overflow: hidden;
+            z-index: 1000;
         }
 
         .chat-header {
-            padding: 15px;
-            background: #3a3a3c;
+            padding: 20px;
+            background: var(--secondary-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
+            border-bottom: 1px solid #333;
         }
 
-        .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        .chat-header span { color: var(--accent-pink); font-weight: 800; font-size: 18px; }
+
+        .close-btn { 
+            background: none; 
+            border: none; 
+            color: var(--text-dim); 
+            font-size: 16px; 
+            font-weight: 500; 
+            cursor: pointer; 
+        }
 
         #chat-messages {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
+            background: radial-gradient(circle at bottom, #1a050a 0%, #0c0c0e 100%);
         }
 
-        .msg { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 15px; line-height: 1.4; }
-        .bot { background: #48484a; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user { background: var(--tg-theme-button-color); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 15px; line-height: 1.4; }
+        .bot { background: var(--secondary-bg); align-self: flex-start; color: white; border-left: 3px solid var(--accent-pink); }
+        .user { background: var(--accent-pink); align-self: flex-end; color: white; font-weight: 500; }
 
         .chat-input-area {
-            padding: 15px;
-            background: #2c2c2e;
+            padding: 20px;
+            background: var(--secondary-bg);
             display: flex;
-            gap: 10px;
-            border-top: 1px solid #3d3d3f;
+            gap: 12px;
+            padding-bottom: 45px;
+            border-top: 1px solid #333;
         }
 
         #user-input {
             flex: 1;
-            background: #1c1c1e;
+            background: var(--bg-color);
             border: 1px solid #444;
-            border-radius: 20px;
-            padding: 10px 15px;
+            border-radius: 25px;
+            padding: 12px 20px;
             color: white;
             outline: none;
             font-size: 16px;
         }
+        #user-input:focus { border-color: var(--accent-pink); }
 
-        #send-btn { background: none; border: none; color: var(--tg-theme-button-color); font-size: 24px; cursor: pointer; }
-
-        .hidden { display: none; }
+        #send-btn { background: none; border: none; color: var(--accent-pink); font-size: 28px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>FITNUT CLUB</h1>
-        <p>Добро пожаловать в пространство твоей трансформации.<br>Наташа и AI-ассистент уже ждут тебя.</p>
-        </div>
+        <p>Добро пожаловать в пространство твоей трансформации.<br><br>Наташа и AI-ассистент уже ждут тебя.</p>
+    </div>
 
     <div id="chat-bubble" onclick="toggleChat()">💬</div>
 
     <div id="chat-window">
         <div class="chat-header">
-            <span>Ната AI-Тренер</span>
-            <button class="close-btn" onclick="toggleChat()">×</button>
+            <span>Nata AI-Assistant</span>
+            <button class="close-btn" onclick="toggleChat()">Закрыть</button>
         </div>
         <div id="chat-messages">
-            <div class="msg bot">Привет! Я твой личный AI-наставник. Задай любой вопрос по тренировкам, питанию или работе клуба! 🚀</div>
+            <div class="msg bot">Привет! ✨ Я твой личный проводник в мире фитнеса. С чего начнем нашу работу сегодня?</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Ваш вопрос..." onkeypress="checkEnter(event)">
+            <input type="text" id="user-input" placeholder="Твой вопрос..." onkeypress="checkEnter(event)">
             <button id="send-btn" onclick="sendMessage()">➔</button>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Расширяем на весь экран
+        tg.ready();
+        tg.expand();
+
+        // Настройка цветов темы самого Telegram (верхняя полоска)
+        tg.setHeaderColor('#1c1c1e');
+        tg.setBackgroundColor('#0c0c0e');
 
         function toggleChat() {
             const chat = document.getElementById('chat-window');
-            const isHidden = chat.style.display === 'none' || chat.style.display === '';
-            chat.style.display = isHidden ? 'flex' : 'none';
-            if (isHidden) document.getElementById('user-input').focus();
+            if (chat.style.display === 'flex') {
+                chat.style.display = 'none';
+            } else {
+                chat.style.display = 'flex';
+                document.getElementById('user-input').focus();
+            }
         }
 
         function checkEnter(e) {
@@ -166,7 +191,6 @@
 
             if (!text) return;
 
-            // Добавляем сообщение пользователя
             const userDiv = document.createElement('div');
             userDiv.className = 'msg user';
             userDiv.textContent = text;
@@ -175,18 +199,14 @@
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
-            // Имитация ответа (пока не подключим OpenAI)
             setTimeout(() => {
                 const botDiv = document.createElement('div');
                 botDiv.className = 'msg bot';
-                botDiv.textContent = "Я тебя поняла! Сейчас проанализирую твой вопрос с точки зрения методики Наташи... ⏳";
+                botDiv.textContent = "Готовлю для тебя профессиональный ответ... Ожидай нашу базу знаний! ✨";
                 container.appendChild(botDiv);
                 container.scrollTop = container.scrollHeight;
-            }, 800);
+            }, 700);
         }
-
-        // Сообщаем Telegram, что приложение готово
-        tg.ready();
     </script>
 </body>
 </html>
