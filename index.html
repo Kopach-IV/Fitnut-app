@@ -6,14 +6,13 @@
     <title>Fitnut App by Nata</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Палитра: Глубокий черный и Розовый неон */
         :root {
             --bg-color: #0c0c0e;
             --secondary-bg: #1c1c1e;
-            --accent-pink: #ff2d55; /* Сочный розовый */
-            --accent-glow: rgba(255, 45, 85, 0.4);
+            --accent-pink: #ff2d55;
             --text-main: #ffffff;
             --text-dim: #ebebf5;
+            --nav-bg: rgba(28, 28, 30, 0.98);
         }
 
         body {
@@ -22,142 +21,192 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
             overflow: hidden;
         }
 
-        .container {
-            padding: 50px 20px;
-            text-align: center;
+        /* Контейнер страниц */
+        .page-container {
             flex: 1;
+            overflow-y: auto;
+            padding-bottom: 90px;
         }
 
-        h1 { 
-            font-size: 32px; 
-            margin-bottom: 15px; 
-            color: var(--accent-pink); 
-            font-weight: 900;
-            letter-spacing: -1px;
-            text-transform: uppercase;
-        }
-        
-        p { font-size: 17px; opacity: 0.9; line-height: 1.5; color: var(--text-dim); }
-
-        /* AI-Чат Кнопка (Пузырь) */
-        #chat-bubble {
-            position: fixed;
-            bottom: 30px;
-            right: 25px;
-            width: 65px;
-            height: 65px;
-            background: var(--accent-pink);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 0 20px var(--accent-glow);
-            cursor: pointer;
-            z-index: 999;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #chat-bubble:active { transform: scale(0.85); }
-
-        /* Окно чата */
-        #chat-window {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
+        .page {
             display: none;
-            flex-direction: column;
+            padding: 20px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: var(--accent-pink); text-transform: uppercase; font-weight: 900; margin-top: 10px; font-size: 24px; }
+        .section-card { background: var(--secondary-bg); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
+
+        /* Навигация (Tab Bar) */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 75px;
+            background: var(--nav-bg);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #333;
+            padding-bottom: env(safe-area-inset-bottom);
             z-index: 1000;
         }
 
-        .chat-header {
-            padding: 20px;
-            background: var(--secondary-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-
-        .chat-header span { color: var(--accent-pink); font-weight: 800; font-size: 18px; }
-
-        .close-btn { 
-            background: none; 
-            border: none; 
-            color: var(--text-dim); 
-            font-size: 16px; 
-            font-weight: 500; 
-            cursor: pointer; 
-        }
-
-        #chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
+        .tab-item {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            background: radial-gradient(circle at bottom, #1a050a 0%, #0c0c0e 100%);
-        }
-
-        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 15px; line-height: 1.4; }
-        .bot { background: var(--secondary-bg); align-self: flex-start; color: white; border-left: 3px solid var(--accent-pink); }
-        .user { background: var(--accent-pink); align-self: flex-end; color: white; font-weight: 500; }
-
-        .chat-input-area {
-            padding: 20px;
-            background: var(--secondary-bg);
-            display: flex;
-            gap: 12px;
-            padding-bottom: 45px;
-            border-top: 1px solid #333;
-        }
-
-        #user-input {
+            align-items: center;
+            color: var(--text-dim);
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.5;
             flex: 1;
-            background: var(--bg-color);
-            border: 1px solid #444;
-            border-radius: 25px;
-            padding: 12px 20px;
-            color: white;
-            outline: none;
-            font-size: 16px;
         }
-        #user-input:focus { border-color: var(--accent-pink); }
 
-        #send-btn { background: none; border: none; color: var(--accent-pink); font-size: 28px; cursor: pointer; }
+        .tab-item.active { color: var(--accent-pink); opacity: 1; }
+        .tab-icon { font-size: 22px; margin-bottom: 5px; }
+
+        /* Стили ЧАТА на Главной */
+        .chat-box { height: 300px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
+        .msg { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 14px; line-height: 1.4; }
+        .bot { background: #2c2c2e; align-self: flex-start; border-left: 3px solid var(--accent-pink); }
+        .user { background: var(--accent-pink); align-self: flex-end; }
+        
+        .chat-input { display: flex; gap: 8px; }
+        .chat-input input { flex: 1; background: #0c0c0e; border: 1px solid #333; border-radius: 12px; padding: 10px; color: white; outline: none; }
+        .chat-input button { background: none; border: none; color: var(--accent-pink); font-size: 20px; cursor: pointer; }
+
+        /* Кнопка Анкеты */
+        .btn-survey { width: 100%; background: linear-gradient(45deg, #ff2d55, #ff5e7d); border: none; border-radius: 12px; color: white; padding: 15px; font-weight: bold; margin-bottom: 25px; cursor: pointer; box-shadow: 0 4px 15px var(--accent-glow); }
+
+        /* Сетка для видео и рецептов */
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .content-item { background: var(--secondary-bg); border-radius: 12px; overflow: hidden; font-size: 13px; border: 1px solid #2c2c2e; }
+        .content-thumb { width: 100%; height: 100px; background: #333; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+
+        /* Профиль */
+        .stats-row { display: flex; justify-content: space-between; margin-top: 15px; }
+        .stat-box { text-align: center; flex: 1; }
+        .stat-val { display: block; font-size: 20px; font-weight: bold; color: var(--accent-pink); }
+        .stat-label { font-size: 12px; opacity: 0.6; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>FITNUT CLUB</h1>
-        <p>Добро пожаловать в пространство твоей трансформации.<br><br>Наташа и AI-ассистент уже ждут тебя.</p>
+    <div class="page-container">
+        
+        <div id="home" class="page active">
+            <h1>Fitnut Main</h1>
+            <button class="btn-survey" onclick="alert('Запуск анкеты...')">ПРОЙТИ АНКЕТИРОВАНИЕ 📋</button>
+            
+            <div class="section-card">
+                <h3 style="margin-top:0; font-size: 16px;">AI Ассистент Наташа</h3>
+                <div id="chat-messages" class="chat-box">
+                    <div class="msg bot">Привет! Пройди анкету, чтобы я могла составить тебе план, или задай любой вопрос прямо сейчас! ✨</div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Задать вопрос..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()">➔</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="workouts" class="page">
+            <h1>Тренировки</h1>
+            <div class="content-grid">
+                <div class="content-item">
+                    <div class="content-thumb">🔥</div>
+                    <div style="padding: 10px;"><b>Утро: Жиросжигание</b><br><span style="opacity: 0.6;">15 мин</span></div>
+                </div>
+                <div class="content-item">
+                    <div class="content-thumb">🧘‍♀️</div>
+                    <div style="padding: 10px;"><b>Йога и растяжка</b><br><span style="opacity: 0.6;">20 мин</span></div>
+                </div>
+                <div class="content-item">
+                    <div class="content-thumb">🍑</div>
+                    <div style="padding: 10px;"><b>Ягодицы и пресс</b><br><span style="opacity: 0.6;">30 мин</span></div>
+                </div>
+                <div class="content-item">
+                    <div class="content-thumb">💪</div>
+                    <div style="padding: 10px;"><b>Full Body</b><br><span style="opacity: 0.6;">45 мин</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="nutrition" class="page">
+            <h1>Питание</h1>
+            <div class="content-grid">
+                <div class="content-item">
+                    <div class="content-thumb">🥗</div>
+                    <div style="padding: 10px;"><b>Боул с лососем</b><br><span style="opacity: 0.6;">Рецепт</span></div>
+                </div>
+                <div class="content-item">
+                    <div class="content-thumb">🥞</div>
+                    <div style="padding: 10px;"><b>ПП-Панкейки</b><br><span style="opacity: 0.6;">Завтрак</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile" class="page">
+            <h1>Профиль</h1>
+            <div class="section-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--accent-pink); display: flex; align-items: center; justify-content: center; font-size: 24px;">👤</div>
+                    <div>
+                        <b id="user-name">Клиент</b><br>
+                        <span style="font-size: 12px; opacity: 0.6;">В клубе с апреля 2024</span>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-box"><span class="stat-val">65.2</span><span class="stat-label">Вес (кг)</span></div>
+                    <div class="stat-box"><span class="stat-val">14</span><span class="stat-label">Трен.</span></div>
+                    <div class="stat-box"><span class="stat-val">-2.1</span><span class="stat-label">Прогресс</span></div>
+                </div>
+            </div>
+            <div class="section-card">
+                <h3 style="margin-top:0; font-size: 14px;">Статистика активности</h3>
+                <div style="height: 100px; border-bottom: 2px solid #333; display: flex; align-items: flex-end; gap: 5px; justify-content: space-around;">
+                    <div style="width: 10%; height: 40%; background: #333; border-top-left-radius: 4px; border-top-right-radius: 4px;"></div>
+                    <div style="width: 10%; height: 70%; background: var(--accent-pink); border-top-left-radius: 4px; border-top-right-radius: 4px;"></div>
+                    <div style="width: 10%; height: 100%; background: var(--accent-pink); border-top-left-radius: 4px; border-top-right-radius: 4px;"></div>
+                    <div style="width: 10%; height: 60%; background: var(--accent-pink); border-top-left-radius: 4px; border-top-right-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div id="chat-bubble" onclick="toggleChat()">💬</div>
-
-    <div id="chat-window">
-        <div class="chat-header">
-            <span>Nata AI-Assistant</span>
-            <button class="close-btn" onclick="toggleChat()">Закрыть</button>
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="showPage('home', this)">
+            <span class="tab-icon">🏠</span>
+            <span>Главная</span>
         </div>
-        <div id="chat-messages">
-            <div class="msg bot">Привет! ✨ Я твой личный проводник в мире фитнеса. С чего начнем нашу работу сегодня?</div>
+        <div class="tab-item" onclick="showPage('workouts', this)">
+            <span class="tab-icon">🏋️‍♀️</span>
+            <span>Тренировки</span>
         </div>
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Твой вопрос..." onkeypress="checkEnter(event)">
-            <button id="send-btn" onclick="sendMessage()">➔</button>
+        <div class="tab-item" onclick="showPage('nutrition', this)">
+            <span class="tab-icon">🥗</span>
+            <span>Питание</span>
+        </div>
+        <div class="tab-item" onclick="showPage('profile', this)">
+            <span class="tab-icon">👤</span>
+            <span>Профиль</span>
         </div>
     </div>
 
@@ -166,46 +215,39 @@
         tg.ready();
         tg.expand();
 
-        // Настройка цветов темы самого Telegram (верхняя полоска)
-        tg.setHeaderColor('#1c1c1e');
-        tg.setBackgroundColor('#0c0c0e');
-
-        function toggleChat() {
-            const chat = document.getElementById('chat-window');
-            if (chat.style.display === 'flex') {
-                chat.style.display = 'none';
-            } else {
-                chat.style.display = 'flex';
-                document.getElementById('user-input').focus();
-            }
+        // Отображение имени из Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').textContent = tg.initDataUnsafe.user.first_name;
         }
 
-        function checkEnter(e) {
-            if (e.key === 'Enter') sendMessage();
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+            tg.HapticFeedback.impactOccurred('light');
         }
 
         function sendMessage() {
             const input = document.getElementById('user-input');
             const container = document.getElementById('chat-messages');
             const text = input.value.trim();
-
             if (!text) return;
 
             const userDiv = document.createElement('div');
             userDiv.className = 'msg user';
             userDiv.textContent = text;
             container.appendChild(userDiv);
-
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
             setTimeout(() => {
                 const botDiv = document.createElement('div');
                 botDiv.className = 'msg bot';
-                botDiv.textContent = "Готовлю для тебя профессиональный ответ... Ожидай нашу базу знаний! ✨";
+                botDiv.textContent = "Я записала! Проанализирую твои данные и отвечу через секунду... ✨";
                 container.appendChild(botDiv);
                 container.scrollTop = container.scrollHeight;
-            }, 700);
+            }, 800);
         }
     </script>
 </body>
