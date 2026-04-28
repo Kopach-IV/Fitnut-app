@@ -6,7 +6,8 @@
     <title>FITNUT BY NATA</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Базовая фиксация стилей, чтобы не было белого экрана */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         html, body {
             background: #000000 !important;
             color: #ffffff !important;
@@ -15,10 +16,9 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Шапка */
         .header {
             position: fixed;
             top: 0;
@@ -41,13 +41,11 @@
             text-transform: uppercase;
         }
 
-        /* Контент */
         .content {
             margin-top: 60px;
             height: calc(100vh - 135px);
             overflow-y: auto;
             padding: 20px;
-            box-sizing: border-box;
         }
 
         .page { display: none; }
@@ -55,16 +53,14 @@
 
         .pink-text { color: #ff2d55; text-transform: uppercase; font-weight: 800; }
 
-        /* Карточки */
         .card {
             background: #1c1c1e;
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 20px;
             margin-bottom: 15px;
             border: 1px solid #2c2c2e;
         }
 
-        /* Кнопка */
         .btn-main {
             background: linear-gradient(45deg, #ff2d55, #ff5e7d);
             color: white;
@@ -79,7 +75,6 @@
             box-shadow: 0 4px 15px rgba(255, 45, 85, 0.3);
         }
 
-        /* Навигация */
         .nav {
             position: fixed;
             bottom: 0;
@@ -107,13 +102,12 @@
         .nav-item.active { color: #ff2d55; }
         .nav-icon { font-size: 20px; margin-bottom: 4px; }
 
-        /* Чат */
-        .chat-display { height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
-        .m-bot { background: #2c2c2e; padding: 10px; border-radius: 15px; align-self: flex-start; max-width: 85%; font-size: 14px; border-left: 3px solid #ff2d55; }
-        .m-user { background: #ff2d55; padding: 10px; border-radius: 15px; align-self: flex-end; max-width: 85%; font-size: 14px; }
+        .chat-display { height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .m-bot { background: #2c2c2e; padding: 12px; border-radius: 15px; align-self: flex-start; max-width: 85%; font-size: 14px; border-left: 3px solid #ff2d55; }
+        .m-user { background: #ff2d55; padding: 12px; border-radius: 15px; align-self: flex-end; max-width: 85%; font-size: 14px; color: white; }
         
-        .chat-input-wrap { display: flex; gap: 10px; border: 1px solid #333; border-radius: 10px; padding: 5px 10px; background: #000; }
-        .chat-input-wrap input { flex: 1; background: none; border: none; color: white; padding: 8px; outline: none; }
+        .chat-input-wrap { display: flex; gap: 10px; border: 1px solid #333; border-radius: 12px; padding: 5px 10px; background: #000; }
+        .chat-input-wrap input { flex: 1; background: none; border: none; color: white; padding: 10px; outline: none; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -129,25 +123,25 @@
                 <span style="opacity: 0.6;">by Nata</span>
             </div>
             
-            <button class="btn-main" onclick="tg.HapticFeedback.notificationOccurred('success')">Пройти анкетирование 📋</button>
+            <button class="btn-main" onclick="window.Telegram.WebApp.HapticFeedback.notificationOccurred('success')">Пройти анкетирование 📋</button>
             
             <div class="card">
                 <div class="pink-text" style="font-size: 12px; margin-bottom: 10px;">AI-Консультант</div>
                 <div id="chat" class="chat-display">
-                    <div class="m-bot">Добро пожаловать в клуб! Задай мне любой вопрос. ✨</div>
+                    <div class="m-bot">Привет! Я Ната-AI. Как твоё самочувствие сегодня? ✨</div>
                 </div>
                 <div class="chat-input-area">
                     <div class="chat-input-wrap">
-                        <input type="text" id="inp" placeholder="Ваш вопрос...">
-                        <button onclick="send()" style="background:none; border:none; color:#ff2d55; font-size:20px;">➔</button>
+                        <input type="text" id="inp" placeholder="Задать вопрос..." onkeypress="if(event.key==='Enter') send()">
+                        <button onclick="send()" style="background:none; border:none; color:#ff2d55; font-size:22px; cursor:pointer;">➔</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="p-club" class="page"><div class="card">🏋️ Раздел тренировок скоро будет здесь.</div></div>
-        <div id="p-menu" class="page"><div class="card">🥗 Вкусные рецепты уже готовятся.</div></div>
-        <div id="p-me" class="page"><div class="card">👤 Твой прогресс и статистика.</div></div>
+        <div id="p-club" class="page"><div class="card">🏋️ Раздел тренировок в разработке...</div></div>
+        <div id="p-menu" class="page"><div class="card">🥗 Меню и рецепты скоро появятся.</div></div>
+        <div id="p-me" class="page"><div class="card">👤 Твой личный профиль и прогресс.</div></div>
     </div>
 
     <div class="nav">
@@ -166,18 +160,14 @@
     </div>
 
     <script>
-        // Инициализация
         const tg = window.Telegram.WebApp;
-        
+        const WORKER_URL = "https://dark-wind-d95b.kopach.workers.dev";
+
         function setup() {
-            try {
-                tg.ready();
-                tg.expand();
-                tg.setHeaderColor('#000000');
-                tg.setBackgroundColor('#000000');
-            } catch (e) {
-                console.error("Telegram WebApp not found");
-            }
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#000000');
+            tg.setBackgroundColor('#000000');
         }
 
         function go(id, title, el) {
@@ -186,19 +176,40 @@
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
             document.getElementById('title').innerText = title;
-            if(window.Telegram) tg.HapticFeedback.impactOccurred('light');
+            tg.HapticFeedback.impactOccurred('light');
         }
 
-        function send() {
-            const i = document.getElementById('inp');
-            const c = document.getElementById('chat');
-            if(!i.value) return;
-            const u = document.createElement('div');
-            u.className = 'm-user';
-            u.innerText = i.value;
-            c.appendChild(u);
-            i.value = '';
-            c.scrollTop = c.scrollHeight;
+        async function send() {
+            const input = document.getElementById('inp');
+            const container = document.getElementById('chat');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'm-user';
+            userDiv.innerText = text;
+            container.appendChild(userDiv);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'm-bot';
+            botDiv.innerText = "⏳ Наташа думает...";
+            container.appendChild(botDiv);
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                botDiv.innerText = data.reply || "Прости, я задумалась. Повторишь?";
+            } catch (e) {
+                botDiv.innerText = "Ошибка связи с сервером. Проверь API ключ!";
+            }
+            container.scrollTop = container.scrollHeight;
         }
 
         setup();
